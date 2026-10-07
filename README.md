@@ -24,3 +24,5 @@ Archive first, market second. No public prices, wallet-connect, floor charts, to
 
 ## Media
 Artwork media currently loads from the OpenSea/Seadn URLs preserved in the provenance data. A later museum/archive release should self-host immutable originals and publish SHA-256 media hashes.
+
+Deployment status: Cloudflare Pages connected to `main`.
