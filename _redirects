@@ -1,1 +1,1 @@
-/works/:id/ /work.html?id=:id 200
+# Clean work links use /work?id=NNN to preserve the artwork identifier on Cloudflare Pages.
