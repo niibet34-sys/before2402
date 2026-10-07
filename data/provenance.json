@@ -1,0 +1,15 @@
+{
+  "collection": "tsarputin",
+  "name": "Putin NFT",
+  "created_date": "2022-02-18",
+  "total_supply": 40,
+  "unique_item_count": 40,
+  "chain": "polygon",
+  "token_standard": "erc1155",
+  "contract": "0x2953399124f0cbb46d2cbacd8a89cf0599974963",
+  "creator_recipient_wallet": "0xefc4ecef8a5338bb9f1b37db8fcd3390fe0a272a",
+  "first_event": "2022-02-18 10:10:39 UTC",
+  "final_event": "2022-02-22 12:53:37 UTC",
+  "collection_description": "Unique arts of the most powerful person in the world, created by artificial intelligence.",
+  "note": "Normalized from OpenSea API responses supplied by the collection owner. Not an OpenSea-issued certificate."
+}
