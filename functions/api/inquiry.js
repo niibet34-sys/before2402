@@ -1,4 +1,6 @@
-export async function onRequestPost({request,env}) {
+export async function onRequestPost(context) {
+  const { request, env } = context;
+
   let d;
   try { d = await request.json(); } catch { return new Response("Bad request",{status:400}); }
 
@@ -18,31 +20,28 @@ export async function onRequestPost({request,env}) {
   if (!env.DB) return new Response("Inquiry service not configured",{status:503});
 
   const ua=(request.headers.get("user-agent")||"").slice(0,500);
+
   try {
     await env.DB.prepare(
       "INSERT INTO inquiries (name,email,organization,inquiry_type,artwork,artwork_reference,budget,message,user_agent,status) VALUES (?,?,?,?,?,?,?,?,?,?)"
     ).bind(name,email,organization,type,artwork,artworkReference,budget,message,ua,"new").run();
-  } catch (e) {
+  } catch {
     return new Response("Storage failed",{status:500});
   }
 
-  if (env.RESEND_API_KEY && env.INQUIRY_TO_EMAIL && env.INQUIRY_FROM_EMAIL) {
-    const html=`<h2>${esc(type)} — ${esc(artworkReference||artwork)}</h2><p><b>Name:</b> ${esc(name)}<br><b>Email:</b> ${esc(email)}<br><b>Organization:</b> ${esc(organization||"—")}<br><b>Budget / offer:</b> ${esc(budget||"—")}</p><p>${esc(message).replace(/\n/g,"<br>")}</p>`;
-    try {
-      await fetch("https://api.resend.com/emails",{
-        method:"POST",
-        headers:{authorization:`Bearer ${env.RESEND_API_KEY}`,"content-type":"application/json"},
-        body:JSON.stringify({
-          from:env.INQUIRY_FROM_EMAIL,
-          to:[env.INQUIRY_TO_EMAIL],
-          reply_to:email,
-          subject:`BEFORE 24.02 — ${type} — ${artworkReference||artwork}`,
-          html
-        })
-      });
-    } catch {}
+  if (env.MAILER) {
+    const payload={name,email,organization,type,artwork,artwork_reference:artworkReference,budget,message};
+    const notify=env.MAILER.fetch("https://mailer.internal/inquiry",{
+      method:"POST",
+      headers:{"content-type":"application/json"},
+      body:JSON.stringify(payload)
+    }).then(async res=>{
+      if(!res.ok) console.error("Inquiry notification failed",res.status,await res.text());
+    }).catch(err=>console.error("Inquiry notification error",String(err)));
+
+    if (context.waitUntil) context.waitUntil(notify);
+    else await notify;
   }
 
   return Response.json({ok:true});
 }
-function esc(s){return String(s).replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]))}
