@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://before2402.art/sitemap.xml
